@@ -122,22 +122,46 @@ Game::Game()
 void Game::updateGame(float elapsedTime, std::vector<Wall*>maze, std::vector<Entity*> objects) {
     pacman->update(elapsedTime, walls, objects);
 
+    P->update(elapsedTime, walls);
+    I->update(elapsedTime, walls);
+    C->update(elapsedTime, walls);
+    B->update(elapsedTime, walls);
+
     const sf::FloatRect pacmanBounds = pacman->getBounds();
 
-    for (auto& object : objects)
+//    for (auto& object : objects)
+//    {
+//        if (object->isGum)
+//        {
+//            sf::FloatRect objectBounds = object->getBounds();
+//            if (pacmanBounds.intersects(objectBounds))
+//            {
+//                objects.erase(std::find(objects.begin(), objects.end(), object));
+//                score += 10;
+//                break;
+//            }
+//        }
+//    }
+
+    bool result = 1;
+
+    while (result)
     {
-        if (object->isGum)
+        result = 0;
+        for(int i = 0; i < objects.size(); ++i)
         {
-            sf::FloatRect objectBounds = object->getBounds();
+            sf::FloatRect objectBounds = objects[i]->getBounds();
             if (pacmanBounds.intersects(objectBounds))
             {
-                objects.erase(std::find(objects.begin(), objects.end(), object));
+                result = 1;
+                for (int j = i + 1; j < objects.size(); ++j)
+                    objects[j - 1] = objects[j];
+                objects.pop_back();
                 score += 10;
                 break;
             }
         }
     }
-
 
     uiPanel->update(score);
 

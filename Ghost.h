@@ -40,6 +40,86 @@ public:
     ScatterModeState* getScatterMode () { return scatterMode; };
     FrightenedModeState* getFrightenedMode () { return frightenedMode; };
     EatenModeState* getEatenMode () { return eatenMode; };
+
+    void updateGhostDirection() {
+        switch (direction)
+        {
+            case Direction::UP:
+                direction = Direction::DOWN;
+                break;
+            case Direction::DOWN:
+                direction = Direction::LEFT;
+                break;
+            case Direction::LEFT:
+                direction = Direction::RIGHT;
+                break;
+            case Direction::RIGHT:
+                direction = Direction::NONE;
+                break;
+            case Direction::NONE:
+                direction = Direction::UP;
+                break;
+        }
+    }
+
+    void update(float elapsedTime, const std::vector<Wall*>& walls)
+    {
+        const float step = GHOST_SPEED * elapsedTime;
+
+        sf::Vector2f movement(0.f, 0.f);
+        switch (direction)
+        {
+            case Direction::UP:
+                movement.y -= step;
+                break;
+            case Direction::DOWN:
+                movement.y += step;
+                break;
+            case Direction::LEFT:
+                movement.x -= step;
+                break;
+            case Direction::RIGHT:
+                movement.x += step;
+                break;
+            case Direction::NONE:
+                updateGhostDirection();
+                break;
+        }
+        const sf::FloatRect ghostBounds = shape.getGlobalBounds();
+        sf::FloatRect futureGhostBounds = shape.getGlobalBounds();
+        futureGhostBounds.left += movement.x;
+        futureGhostBounds.top += movement.y;
+        for (const auto& cell : walls)
+        {
+            if (cell->isWall)
+            {
+                const sf::FloatRect cellBounds = cell->getBounds();
+                if (cellBounds.intersects(futureGhostBounds))
+                {
+                    movement = sf::Vector2f(0.f, 0.f);
+                    shape.move(movement);
+
+                    switch (direction) {
+                        case Direction::UP:
+                            updateGhostDirection();
+                            break;
+                        case Direction::DOWN:
+                            updateGhostDirection();
+                            break;
+                        case Direction::LEFT:
+                            updateGhostDirection();
+                            break;
+                        case Direction::RIGHT:
+                            updateGhostDirection();
+                            break;
+                        case Direction::NONE:
+                            break;
+                    }
+                }
+            }
+        }
+        shape.move(movement);
+    }
 };
 
 class Pinky : public Ghost
