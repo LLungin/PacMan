@@ -15,7 +15,7 @@ void update(sf::Clock& clock, Game& game)
 {
     const float elapsedTime = clock.getElapsedTime().asSeconds();
     clock.restart();
-    game.updateGame(elapsedTime, game.getWalls());
+    game.updateGame(elapsedTime, game.getWalls(), game.getEntities());
 }
 
 void render(sf::RenderWindow& window, Game& game)

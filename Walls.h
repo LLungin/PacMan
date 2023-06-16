@@ -10,6 +10,7 @@ public:
         xPos = x;
         yPos = y;
         size = s;
+        isWall = true;
     }
 
     void render(sf::RenderWindow& window) override
@@ -19,4 +20,6 @@ public:
         walls_shape.setPosition(sf::Vector2f(xPos, yPos));
         window.draw(walls_shape);
     }
+
+    bool isWall;
 };

@@ -1,19 +1,45 @@
 #pragma once
 #include "Entity.h"
+#include "Pacman.h"
 
-static const float BLINKY_SPEED = 120.f; // pixels per second.
-static const float CLYDE_SPEED = 120.f; // pixels per second.
-static const float INKY_SPEED = 120.f; // pixels per second.
-static const float PINKY_SPEED = 120.f; // pixels per second.
+static const float GHOST_SPEED = 100.f; // pixels per second.
 
-
+class GhostState;
+class HouseModeState;
+class ChaseModeState;
+class ScatterModeState;
+class FrightenedModeState;
+class EatenModeState;
 
 class Ghost : public MovingEntity
 {
+
+    GhostState* currentState;
+    HouseModeState* houseMode;
+    ChaseModeState* chaseMode;
+    ScatterModeState* scatterMode;
+    FrightenedModeState* frightenedMode;
+    EatenModeState* eatenMode;
+
+    bool isChasing;
+
 public:
-    Ghost(int x, int y, int size) {};
+    Ghost(int x, int y, int size);
     Ghost() = default;;
-    ~Ghost() = default;;
+    ~Ghost();
+    void setState(GhostState* newState) {
+        currentState = newState;
+    };
+//    void setPacman(Pacman* pacman) {};
+    bool is_Chasing () const { return isChasing; };
+//    void setChasingStatus (bool isChasing);
+//    void setDangerousStatus (bool isDangerous);
+
+    HouseModeState* getHouseMode() { return houseMode; };
+    ChaseModeState* getChaseMode () { return chaseMode; };
+    ScatterModeState* getScatterMode () { return scatterMode; };
+    FrightenedModeState* getFrightenedMode () { return frightenedMode; };
+    EatenModeState* getEatenMode () { return eatenMode; };
 };
 
 class Pinky : public Ghost
@@ -72,12 +98,133 @@ public:
     ~Blinky() = default;;
 };
 
+class GhostState {
+protected:
+    Ghost* ghost;
+
+public:
+    GhostState(Ghost* ghost) : ghost(ghost) {}
+
+    virtual void superPacGumEaten() = 0;
+    virtual void timerModeOver() = 0;
+    virtual void timerFrightenedMode() = 0;
+    virtual void eaten() = 0;
+    virtual void outsideHouse() = 0;
+    virtual void insideHouse() = 0;
+    virtual void computeNextDir() = 0;
+    virtual sf::Vector2f getTargetPosition() = 0;
+};
+
+class HouseModeState : public GhostState {
+public:
+    HouseModeState(Ghost* ghost) : GhostState(ghost) {}
+
+    void superPacGumEaten() override {}
+
+    void timerModeOver() override {}
+
+    void timerFrightenedMode() override {}
+
+    void eaten() override {}
+
+    void outsideHouse() ;
+
+    void insideHouse() override {}
+
+    void computeNextDir() override {}
+
+    sf::Vector2f getTargetPosition() override { return sf::Vector2f{0, 0}; } // Возвращаем позицию дома призраков
+};
+
+class ChaseModeState : public GhostState {
+public:
+    ChaseModeState(Ghost* ghost) : GhostState(ghost) {}
+
+    void superPacGumEaten();
+
+    void timerModeOver();
+
+    void timerFrightenedMode() override {}
+
+    void eaten() override {}
+
+    void outsideHouse() override {}
+
+    void insideHouse() override {}
+
+    void computeNextDir() override {}
+
+    sf::Vector2f getTargetPosition() override {}
+};
+
+
+class ScatterModeState : public GhostState {
+public:
+    ScatterModeState(Ghost* ghost) : GhostState(ghost) {};
+    void superPacGumEaten() ;
+
+    void timerModeOver() ;
+
+    void timerFrightenedMode() override {}
+
+    void eaten() override {}
+
+    void outsideHouse() override {}
+
+    void insideHouse() override {}
+
+    void computeNextDir() override {}
+
+    sf::Vector2f getTargetPosition() override {}
+};
+
+class FrightenedModeState : public GhostState {
+public:
+    FrightenedModeState(Ghost* ghost) : GhostState(ghost) {}
+
+    void superPacGumEaten() override {}
+
+    void timerModeOver() override {}
+
+    void timerFrightenedMode() ;
+
+    void eaten() ;
+
+    void outsideHouse() override {}
+
+    void insideHouse() override {}
+
+    void computeNextDir() override {}
+
+    sf::Vector2f getTargetPosition() override {}
+};
+
+class EatenModeState : public GhostState {
+public:
+    EatenModeState(Ghost* ghost) : GhostState(ghost) {}
+    void superPacGumEaten() override {}
+
+    void timerModeOver() override {}
+
+    void timerFrightenedMode() override {}
+
+    void eaten() override {}
+
+    void outsideHouse() override {}
+
+    void insideHouse() ;
+
+    void computeNextDir() override {}
+
+    sf::Vector2f getTargetPosition() override {}
+};
+
 
 
 // Абстрактный класс ABSTRACTGHOSTFACTORY
 class ABSTRACTGHOSTFACTORY {
 public:
-    virtual Ghost* createGhost(int x, int y, int sixe) = 0;
+    virtual Ghost* createGhost(int x, int y, int size) = 0;
 };
 
 // Классы для призраков
@@ -116,3 +263,4 @@ public:
         return ghost;
     }
 };
+

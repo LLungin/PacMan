@@ -1,10 +1,11 @@
 #pragma once
+#include <SFML/Graphics.hpp>
 #include "Entity.h"
 #include "Walls.h"
 
 static const sf::Color PACKMAN_COLOR = sf::Color(255, 216, 0);
 static const float PACKMAN_SPEED = 120.f; // pixels per second.
-static const float PACKMAN_RADIUS = 16.f; // pixels
+static const float PACKMAN_RADIUS = 15.f; // pixels
 
 class Pacman: public MovingEntity
 {
@@ -40,38 +41,158 @@ public:
         }
     }
 
-    void update(float elapsedTime, std::vector<Wall*> walls)
+//    sf::Vector2f check1 (sf::Vector2f movement, std::vector<Wall*> walls)
+//    {
+//        int width = 28;
+//        int height = 35;
+//        sf::FloatRect pacmanBounds = shape.getGlobalBounds();
+//        pacmanBounds.left += movement.x;
+//        pacmanBounds.top += movement.y;
+//
+//        for (auto& cell : walls)
+//        {
+//            if (cell->isWall)
+//            {
+//                const sf::FloatRect cellBounds = cell->getBounds();
+//                if (cellBounds.intersects(pacmanBounds))
+//                    movement = sf::Vector2f(0.f, 0.f);
+//                    break;
+//
+//            }
+//        }
+//
+//        return movement;
+//    }
+
+//    std::pair<bool, std::vector<Entity*>::iterator> check2 (sf::Vector2f movement, std::vector<Entity*> objects)
+//    {
+//        int width = 28;
+//        int height = 35;
+//        const sf::FloatRect pacmanBounds = shape.getGlobalBounds();
+//        bool result = 1;
+//        std::vector<Entity*>::iterator gum;
+//
+//        for (auto& object : objects)
+//        {
+//            if (object->isGum)
+//            {
+//                gum = std::find(objects.begin(), objects.end(), object);
+//                const sf::FloatRect objectBounds = object->getBounds();
+//                if (objectBounds.intersects(pacmanBounds))
+//                    result = 0;
+//            }
+//        }
+//
+//        std::pair<bool, std::vector<Entity*>::iterator> Pair = std::make_pair(result, gum);
+//
+//        return Pair;
+//    }
+
+    void update(float elapsedTime, std::vector<Wall*> walls, std::vector<Entity*> objects)
     {
-        const float step = PACKMAN_SPEED * elapsedTime;
         updatePacmanDirection();
         sf::Vector2f movement(0.f, 0.f);
+        sf::Vector2f temp;
 
         switch (direction)
         {
             case Direction::UP:
-                movement.y -= step;
+                temp = {0.f, PACKMAN_SPEED * elapsedTime};
+//                result1 = check1(movement-temp, walls);
+//
+//                if (result1 == 1)
+                movement -= temp;
+//                else
+//                    movement += temp;
                 break;
             case Direction::DOWN:
-                movement.y += step;
+                temp = {0.f, PACKMAN_SPEED * elapsedTime};
+//                result1 = check1(movement+temp, walls);
+//
+//                if (result1 == 1)
+                movement += temp;
+//                else
+//                    movement -= temp;
                 break;
             case Direction::LEFT:
-                movement.x -= step;
+                temp = {PACKMAN_SPEED * elapsedTime, 0.f};
+//                result1 = check1(movement-temp, walls);
+//
+//                if (result1 == 1)
+                movement -= temp;
+//                else
+//                    movement += temp;
                 break;
             case Direction::RIGHT:
-                movement.x += step;
+                temp = {PACKMAN_SPEED * elapsedTime, 0.f};
+//                result1 = check1(movement+temp, walls);
+//
+//                if (result1 == 1)
+                movement += temp;
+//                else
+//                    movement -= temp;
                 break;
             case Direction::NONE:
                 break;
         }
-        const sf::FloatRect packmanBounds = shape.getGlobalBounds();
         //  if (checkFieldWallsCollision(field, packmanBounds, movement))
         // {
         //
         //      direction = Direction::NONE;
         // }
 
+//        bool result1 = check1(movement+temp, walls);
+//
+//        if (result1 == 0)
+//        {
+//            bool result3 = check1(movement, walls);
+//            if (result3 == 1)
+//            shape.move(movement);
+//        }
+//        else
 
+//        const sf::FloatRect pacmanBounds = shape.getGlobalBounds();
+        sf::FloatRect futurePacmanBounds = shape.getGlobalBounds();
+        futurePacmanBounds.left += movement.x;
+        futurePacmanBounds.top += movement.y;
+
+        for (const auto& cell : walls)
+        {
+            if (cell->isWall)
+            {
+                const sf::FloatRect cellBounds = cell->getBounds();
+                if (cellBounds.intersects(futurePacmanBounds))
+                {
+                    movement = sf::Vector2f(0.f, 0.f);
+                    break;
+                }
+            }
+        }
         shape.move(movement);
+
+//        else if (result1 == 0)
+//        {
+//            sf::Vector2f Pair (shape.getGlobalBounds().left, shape.getGlobalBounds().top);
+//            shape.setPosition(Pair - temp);
+//        }
+
+//        bool result = 1;
+//        std::vector<Entity*>::iterator gum;
+//
+//        for (auto& object : objects)
+//        {
+//            if (object->isGum)
+//            {
+//                gum = std::find(objects.begin(), objects.end(), object);
+//                const sf::FloatRect objectBounds = object->getBounds();
+//                if (objectBounds.intersects(pacmanBounds))
+//                    result = 0;
+//            }
+//        }
+//
+//        if (result == 0)
+//            objects.erase(gum);
+
     }
 
 

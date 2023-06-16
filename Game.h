@@ -5,6 +5,7 @@
 #include "Entity.h"
 #include "Ghost.h"
 #include "Walls.h"
+#include "Uipanel.h"
 
 class Game
 {
@@ -14,14 +15,15 @@ class Game
     std::vector<Ghost*> ghosts;
     std::vector<Wall*> walls;
     Pacman *pacman;
-
+    int score = 0;
 public:
     Game();
     std::vector<Entity*> getEntities() { return objects; };
     std::vector<Ghost*> getGhosts() { return ghosts; };
     std::vector<Wall*> getWalls() { return walls; };
     Pacman getPacman() { return *pacman; };
-    void updateGame(float elapsedTime, std::vector<Wall*>maze); // изменения координат объектов
+    UIPanel* uiPanel;
+    void updateGame(float elapsedTime, std::vector<Wall*>maze, std::vector<Entity*>objects); // изменения координат объектов
     void render(sf::RenderWindow& window); // отрисовка
     ~Game() = default;
 };

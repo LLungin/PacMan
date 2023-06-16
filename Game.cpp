@@ -1,6 +1,9 @@
 #include "Game.h"
+#include "Entity.h"
+#include "Pacman.h"
 #include <iostream>
 #include <string>
+#include <vector>
 
 const int W = 28;
 const int H = 35;
@@ -52,6 +55,11 @@ static std::string maze[H] = {
         "XXXXXXXXXXXXXXXXXXXXXXXXXXXX",
         "XXXXXXXXXXXXXXXXXXXXXXXXXXXX"};
 
+Pinky* P;
+Inky* I;
+Clyde* C;
+Blinky* B;
+
 Game::Game()
 {
     width = W;
@@ -71,25 +79,25 @@ Game::Game()
 
             else if (maze[i][j] == 'P')
             {
-                Pinky* P = new Pinky(i * 32.f, j * 32.f, 16.f);
+                P = new Pinky(i * 32.f, j * 32.f, 16.f);
                 ghosts.push_back(P);
             }
 
             else if (maze[i][j] == 'I')
             {
-                Inky* I = new Inky(i * 32.f, j * 32.f, 16.f);
+                I = new Inky(i * 32.f, j * 32.f, 16.f);
                 ghosts.push_back(I);
             }
 
             else if (maze[i][j] == 'C')
             {
-                Clyde* C = new Clyde(i * 32.f, j * 32.f, 16.f);
+                C = new Clyde(i * 32.f, j * 32.f, 16.f);
                 ghosts.push_back(C);
             }
 
             else if (maze[i][j] == 'B')
             {
-                Blinky* B = new Blinky(i * 32.f, j * 32.f, 16.f);
+                B = new Blinky(i * 32.f, j * 32.f, 16.f);
                 ghosts.push_back(B);
             }
 
@@ -106,9 +114,54 @@ Game::Game()
             }
         }
     }
+    uiPanel = new UIPanel(score);
 }
 
-void Game::updateGame(float elapsedTime, std::vector<Wall*>maze) { pacman->update(elapsedTime, walls); }// изменения координат объектов
+
+
+void Game::updateGame(float elapsedTime, std::vector<Wall*>maze, std::vector<Entity*> objects) {
+    pacman->update(elapsedTime, walls, objects);
+
+    const sf::FloatRect pacmanBounds = pacman->getBounds();
+
+    for (auto& object : objects)
+    {
+        if (object->isGum)
+        {
+            sf::FloatRect objectBounds = object->getBounds();
+            if (pacmanBounds.intersects(objectBounds))
+            {
+                objects.erase(std::find(objects.begin(), objects.end(), object));
+                score += 10;
+                break;
+            }
+        }
+    }
+
+
+    uiPanel->update(score);
+
+
+//    for (auto it = objects.begin(); it != objects.end(); )
+//    {
+//        Entity* pacGum = *it;
+//        sf::FloatRect pacmanBounds = pacman->getBounds();
+//        sf::CircleShape pacGumShape(pacGum->size / 2.0f);
+//        pacGumShape.setPosition(sf::Vector2f(pacGum->xPos, pacGum->yPos));
+//        sf::FloatRect pacGumBounds = pacGumShape.getGlobalBounds();
+//        if (pacGumBounds.contains(pacmanBounds.left + pacmanBounds.width / 2.0f, pacmanBounds.top + pacmanBounds.height / 2.0f))
+//        {
+//            it = objects.erase(it);
+//            delete objects;
+//        }
+//        else
+//        {
+//            ++it;
+//        }
+//    }
+
+
+}// изменения координат объектов
 
 void Game::render(sf::RenderWindow& window)
 {
@@ -125,4 +178,6 @@ void Game::render(sf::RenderWindow& window)
         it->render(window);
 
     getPacman().render(window);
+
+    uiPanel->render(window);
 }
